@@ -1,0 +1,41 @@
+services:
+  app:
+    image: ghcr.io/logykk/zenith206-image-proof@sha256:cd86b1b29e1a21dad64170bd9f6913aa8fa4b4b988a8f3262095337d28400d1a
+    restart: unless-stopped
+    environment:
+      DATA_DIR: /data
+      PORT: "8080"
+    volumes:
+      - data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=5).read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  data: {}
+
+x-zenith:
+  catalog:
+    name: Zenith full journey test
+    description: Self-hosted Python web notes app with per-installation SQLite storage.
+    authors:
+      - logykk
+    tags:
+      - notes
+      - productivity
+    source: https://github.com/logykk/zenith206-full-e2e
+    license: MIT
+  expose:
+    - service: app
+      port: 8080
+      web: true
+  storage:
+    data:
+      volume: data
+      label: Notes database
+      description: SQLite database and persistent application data stored in /data.
+      public: false
+  env: {}
